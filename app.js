@@ -318,6 +318,52 @@ document.getElementById('clearParserBtn').addEventListener('click', () => {
     showNotification('Фильтры очищены', 'info');
 });
 
+// Search Form
+const searchForm = document.getElementById('searchForm');
+if (searchForm) {
+    searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const params = new URLSearchParams();
+        
+        const brand = document.getElementById('brand')?.value;
+        const model = document.getElementById('model')?.value;
+        const yearFrom = document.getElementById('yearFrom')?.value;
+        const yearTo = document.getElementById('yearTo')?.value;
+        const priceFrom = document.getElementById('priceFrom')?.value;
+        const priceTo = document.getElementById('priceTo')?.value;
+        const country = document.getElementById('country')?.value;
+        const fuel = document.getElementById('fuel')?.value;
+        
+        if (brand) params.append('brand', brand);
+        if (model) params.append('model', model);
+        if (yearFrom) params.append('minYear', yearFrom);
+        if (yearTo) params.append('maxYear', yearTo);
+        if (priceFrom) params.append('minPrice', priceFrom);
+        if (priceTo) params.append('maxPrice', priceTo);
+        if (country) params.append('country', country);
+        if (fuel) params.append('fuel', fuel);
+        
+        const query = params.toString();
+        
+        try {
+            const response = await fetch(`/api/cars${query ? '?' + query : ''}`);
+            const data = await response.json();
+            
+            // Switch to featured tab and show results
+            document.querySelector('[href="#featured"]')?.click();
+            
+            if (data.cars.length === 0) {
+                showNotification('Автомобили не найдены', 'info');
+            } else {
+                showNotification(`Найдено ${data.total} автомобилей`, 'success');
+            }
+        } catch (error) {
+            showNotification('Ошибка поиска: ' + error.message, 'error');
+        }
+    });
+}
+
 // Add Car Form
 document.getElementById('addCarForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1152,3 +1198,4 @@ document.head.appendChild(style);
 // Initialize view
 featuredSection.classList.add('active');
 panels.forEach(panel => panel.classList.remove('active'));
+
